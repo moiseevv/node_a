@@ -5,8 +5,12 @@ console.log(data.toString());
 
 const {ch, per} = require('./ch');
 
-per(ch, 'frod');
+let new_bound = ch
+per(new_bound, 'frod');
 
-for (const c of ch){
+for (const c of new_bound){
+    if (c.name == 'bilb'){
+        c.name = 'next_bilb'
+    }
     console.log(c);
 }
