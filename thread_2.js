@@ -1,24 +1,45 @@
+const { Worker } = require('worker_threads')
 const factorial = require('./factorial')
+
 const compute = (array) => {
- const arr= [];
- for(let i =0; i< 10000; i++){
-     arr.push(i*i);
- }
- return array.map(el => factorial(el));
+    return new Promise((resolve, reject) => {
+        const worker = new Worker('./worker.js', {
+            workerData: {
+                array
+            }
+        
+    });
+    worker.on('message', (msg) => {
+        console.log(worker.threadId);
+        resolve(msg);
+    });
+
+    worker.on('error', (err) => {
+        reject(err);
+    });
+
+    worker.on('exit', () => {
+        console.log('Завершить работу');
+    });
+});
 };
 
-const main = () => {
+const main = async () => {
+    try {
     performance.mark('start');
-    const result = [
+    const result = await Promise.all( [
         compute([25,20,19,48,30,50]),
         compute([25,20,19,48,30,50]),
         compute([25,20,19,48,30,50]),
         compute([25,20,19,48,30,50])
-    ];
+    ]);
     console.log(result);
     performance.mark('end');
     performance.measure('main','start','end');
-    console.log(performance.getEntriesByName('main').pop());
+    console.log(performance.getEntriesByName('main').pop());}
+    catch (e){
+        console.error(e.message);
+    }
 };
 
 main(); 
